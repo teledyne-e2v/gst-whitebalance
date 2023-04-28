@@ -30,7 +30,7 @@ https://packages.debian.org/buster/all/meson/download.
 Once you have download your package, you can install it with the command : 
 ```sudo apt install ./meson_0.49.2-1_all.deb```
 
-This should install the ninja package, if not use the command :
+This should install the ninja package, if not use the command : 
 ```sudo apt install ninja```
 
 #### Yocto based system (Jetson): 
