@@ -67,6 +67,7 @@
 #include <stdlib.h>
 #include "gstwhitebalance.h"
 
+void copy(const char* src,char *dest);
 
 GST_DEBUG_CATEGORY_STATIC(gst_whitebalance_debug);
 #define GST_CAT_DEFAULT gst_whitebalance_debug
@@ -169,8 +170,6 @@ gst_whitebalance_class_init(GstwhitebalanceClass *klass)
 static void
 gst_whitebalance_init(Gstwhitebalance *whitebalance)
 {
-    pthread_t thread;
-    int rc;
     whitebalance->sinkpad = gst_pad_new_from_static_template(&sink_factory, "sink");
     gst_pad_set_chain_function(whitebalance->sinkpad,
                                GST_DEBUG_FUNCPTR(gst_whitebalance_chain));
@@ -181,10 +180,10 @@ gst_whitebalance_init(Gstwhitebalance *whitebalance)
     GST_PAD_SET_PROXY_CAPS(whitebalance->srcpad);
     gst_element_add_pad(GST_ELEMENT(whitebalance), whitebalance->srcpad);
     whitebalance->frame = NULL;
+	
+
     whitebalance->blue = (char *) malloc(sizeof(char)*11);
     strncpy(whitebalance->blue,"0x01 0xFE",10);
-
-
     whitebalance->red = (char *) malloc(sizeof(char)*11);
     strncpy(whitebalance->red,"0x02 0x36",10);
     whitebalance->green = (char *) malloc(sizeof(char)*11);
