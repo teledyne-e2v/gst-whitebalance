@@ -28,10 +28,14 @@ Meson > 0.49 is required, you can download the good version on the official debi
 https://packages.debian.org/buster/all/meson/download.
 
 Once you have download your package, you can install it with the command : 
-```sudo apt install ./meson_0.49.2-1_all.deb```
+```
+sudo apt install ./meson_0.49.2-1_all.deb
+```
 
 This should install the ninja package, if not use the command : 
-```sudo apt install ninja```
+```
+sudo apt install ninja
+```
 
 #### Yocto based system (Jetson): 
 
