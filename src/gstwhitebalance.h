@@ -82,8 +82,6 @@ struct _Gstwhitebalance
     char* green;
     guint8 *frame;
     gsize frameSize;
-
-    gboolean listen;
 };
 
 struct _GstwhitebalanceClass
