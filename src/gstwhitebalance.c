@@ -261,7 +261,7 @@ gst_whitebalance_chain(GstPad *pad, GstObject *parent, GstBuffer *buf)
     Gstwhitebalance *whitebalance = GST_WHITEBALANCE(parent);
     if(apply_changes_blue==1)
     {
-    char cmd[100]="i2ctransfer -f -y 6 w3@0x10 0x20 ";
+    char cmd[100]="i2ctransfer -f -y 6 w3@0x10 0x1E ";
     strcat(cmd,whitebalance->blue);
     if(system(cmd)==-1)	
     {
@@ -277,7 +277,7 @@ gst_whitebalance_chain(GstPad *pad, GstObject *parent, GstBuffer *buf)
 
     if(apply_changes_red==1)
     {
-    char cmd[100]="i2ctransfer -f -y 6 w3@0x10 0x1E ";
+    char cmd[100]="i2ctransfer -f -y 6 w3@0x10 0x20 ";
     strcat(cmd,whitebalance->red);
     if(system(cmd)==-1)	
     {
