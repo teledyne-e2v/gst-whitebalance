@@ -263,8 +263,15 @@ gst_whitebalance_chain(GstPad *pad, GstObject *parent, GstBuffer *buf)
     {
     char cmd[100]="i2ctransfer -f -y 6 w3@0x10 0x20 ";
     strcat(cmd,whitebalance->blue);
-    system(cmd);
-    system("i2ctransfer -f -y 6 w3@0x10 0x04 0xa2 0xd0");
+    if(system(cmd)==-1)	
+    {
+	    printf("system call failed\n");
+    }
+    if(system("i2ctransfer -f -y 6 w3@0x10 0x04 0xa2 0xd0")==-1)
+    {
+	  printf("system call failed\n");
+    }
+    
     apply_changes_blue=0;
     }
 
@@ -272,8 +279,14 @@ gst_whitebalance_chain(GstPad *pad, GstObject *parent, GstBuffer *buf)
     {
     char cmd[100]="i2ctransfer -f -y 6 w3@0x10 0x1E ";
     strcat(cmd,whitebalance->red);
-    system(cmd);
-    system("i2ctransfer -f -y 6 w3@0x10 0x04 0xa2 0xd0");
+    if(system(cmd)==-1)	
+    {
+	    printf("system call failed\n");
+    }
+    if(system("i2ctransfer -f -y 6 w3@0x10 0x04 0xa2 0xd0")==-1)
+    {
+	  printf("system call failed\n");
+    }
     apply_changes_red=0;
     }
 
@@ -281,9 +294,14 @@ gst_whitebalance_chain(GstPad *pad, GstObject *parent, GstBuffer *buf)
     {
         char cmd[100]="i2ctransfer -f -y 6 w3@0x10 0x1F ";
     strcat(cmd,whitebalance->green);
-    system(cmd);
-
-    system("i2ctransfer -f -y 6 w3@0x10 0x04 0xa2 0xd0");
+    if(system(cmd)==-1)	
+    {
+	    printf("system call failed\n");
+    }
+    if(system("i2ctransfer -f -y 6 w3@0x10 0x04 0xa2 0xd0")==-1)
+    {
+	  printf("system call failed\n");
+    }
     apply_changes_green=0;
     }
 
