@@ -37,7 +37,7 @@ This should install the ninja package, if not use the command :
 sudo apt install ninja
 ```
 
-### Yocto based system (Jetson): 
+### Yocto based system (IMX): 
 
 Teledyne provide a bbappend file which provides all packages needed :
 https://github.com/teledyne-e2v/Yocto-files
