@@ -81,7 +81,6 @@ enum
 enum
 {
     PROP_0,
-    PROP_LISTEN,
     PROP_BLUE,
     PROP_RED,
     PROP_GREEN
@@ -135,13 +134,6 @@ gst_whitebalance_class_init(GstwhitebalanceClass *klass)
     gobject_class->finalize = gst_whitebalance_finalize;
 
 
-
-    g_object_class_install_property(gobject_class, PROP_LISTEN,
-                                    g_param_spec_boolean("listen", "Listen",
-                                                         "Listen for user inputs in the terminal",
-                                                         TRUE, G_PARAM_READWRITE));
-
-
     g_object_class_install_property(gobject_class, PROP_BLUE,
                                     g_param_spec_string("blue", "Blue",
                                                      "Value of blue gain",
@@ -189,7 +181,6 @@ gst_whitebalance_init(Gstwhitebalance *whitebalance)
     GST_PAD_SET_PROXY_CAPS(whitebalance->srcpad);
     gst_element_add_pad(GST_ELEMENT(whitebalance), whitebalance->srcpad);
     whitebalance->frame = NULL;
-    whitebalance->listen = TRUE;
     whitebalance->blue = (char *) malloc(sizeof(char)*11);
     strncpy(whitebalance->blue,"0x01 0xFE",10);
 
@@ -233,9 +224,6 @@ gst_whitebalance_set_property(GObject *object, guint prop_id,
         strncpy(whitebalance->green,g_value_get_string(value),10);
 	apply_changes_green=1;
 	break;
-    case PROP_LISTEN:
-        whitebalance->listen = g_value_get_boolean(value);
-        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
         break;
@@ -250,9 +238,6 @@ gst_whitebalance_get_property(GObject *object, guint prop_id,
 
     switch (prop_id)
     {
-    case PROP_LISTEN:
-        g_value_set_boolean(value, whitebalance->listen);
-        break;
     case PROP_BLUE:
         g_value_set_string(value, whitebalance->blue);
         break;
