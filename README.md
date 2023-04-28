@@ -19,7 +19,7 @@ The following libraries are required for this plugin.
 - gstreamer-1.0
 
 
-#### Debian based system (Jetson): 
+### Debian based system (Jetson): 
 
 ```
 sudo apt install v4l-utils libv4l-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
@@ -37,7 +37,7 @@ This should install the ninja package, if not use the command :
 sudo apt install ninja
 ```
 
-#### Yocto based system (Jetson): 
+### Yocto based system (Jetson): 
 
 Teledyne provide a bbappend file which provides all packages needed :
 https://github.com/teledyne-e2v/Yocto-files
