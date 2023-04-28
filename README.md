@@ -122,6 +122,7 @@ By default, the plugin listen for user inputs in the terminal. You can whitebala
     - Type: string
     - Default value: "0x02 0x36"
     - Description: Control the value of red gain (should be a string of 9 characters as the default value)-  - green:
+- green:
     - Type: string
     - Default value: "0x01 0x00"
     - Description: Control the value of green gain (should be a string of 9 characters as the default value)
