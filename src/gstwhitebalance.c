@@ -136,17 +136,17 @@ gst_whitebalance_class_init(GstwhitebalanceClass *klass)
 
     g_object_class_install_property(gobject_class, PROP_BLUE,
                                     g_param_spec_string("blue", "Blue",
-                                                     "Value of blue gain",
+                                                     "Control the value of blue gain (should be a string of 9 characters as the default value)",
                                                      "0x01 0xFE", G_PARAM_READWRITE));
 
     g_object_class_install_property(gobject_class, PROP_RED,
                                     g_param_spec_string("red", "Red",
-                                                     "Value of red gain",
+                                                     "Control the value of red gain (should be a string of 9 characters as the default value)",
                                                      "0x02 0x36", G_PARAM_READWRITE));
 
     g_object_class_install_property(gobject_class, PROP_GREEN,
                                     g_param_spec_string("green", "Green",
-                                                     "Value of green gain",
+                                                     "Control the value of green gain (should be a string of 9 characters as the default value)",
                                                      "0x01 0x00", G_PARAM_READWRITE));
 
     gst_element_class_set_details_simple(gstelement_class,
