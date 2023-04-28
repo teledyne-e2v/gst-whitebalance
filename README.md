@@ -95,26 +95,33 @@ export GST_PLUGIN_PATH=/usr/local/lib/gstreamer-1.0/
 The plugin can be used in any gstreamer pipeline by adding '''whitebalance''', the name of the plugin.
 
 # Pipeline examples:
-With fake image pipeline:
+
+With debayer:
 ```
-gst-launch-1.0 videotestsrc ! whitebalance ! videoconvert ! ximagesink
+gst-launch-1.0 v4l2src ! whitebalance ! 'video/x-raw,width=1920,height=1080,format=GRAY8' ! capssetter join=false caps="video/x-bayer,format=rggb"  ! bayer2rgb ! nvvidconv ! 'video/x-raw(memory:NVMM)' ! nv3dsink sync=0
+```
+With debayer and boosting the blue:
+```
+gst-launch-1.0 v4l2src ! whitebalance blue="0x03 0x00" ! 'video/x-raw,width=1920,height=1080,format=GRAY8' ! capssetter join=false caps="video/x-bayer,format=rggb"  ! bayer2rgb ! nvvidconv ! 'video/x-raw(memory:NVMM)' ! nv3dsink sync=0
 ```
 
-With simple video stream:
+With debayer and nvidia plugins (Jetsons only):
 ```
-gst-launch-1.0 v4l2src ! whitebalance ! queue ! videoconvert ! queue ! xvimagesink sync=false
+gst-launch-1.0 v4l2src ! whitebalance ! 'video/x-raw,width=1920,height=1080,format=GRAY8' ! capssetter join=false caps="video/x-bayer,format=rggb"  ! bayer2rgb ! nvvidconv ! 'video/x-raw(memory:NVMM)' ! nv3dsink sync=0
 ```
 
 By default, the plugin listen for user inputs in the terminal. You can whitebalance and unwhitebalance the video stream by entering '''f''' in the terminal.
 
 # Plugin parameters
 
-- freeze:
-    - Type: boolean
-    - Default value: false
-    - Description: Freeze the stream without blocking the pipeline
-
-- listen:
-    - Type: boolean
-    - Default value: true
-    - Description: Listen for user inputs in the terminal
+- blue:
+    - Type: string
+    - Default value: "0x01 0xFE"
+    - Description: Control the value of blue gain (should be a string of 9 characters as the default value)
+- red:
+    - Type: string
+    - Default value: "0x02 0x36"
+    - Description: Control the value of red gain (should be a string of 9 characters as the default value)-  - green:
+    - Type: string
+    - Default value: "0x01 0x00"
+    - Description: Control the value of green gain (should be a string of 9 characters as the default value)
