@@ -24,7 +24,7 @@ The following libraries are required for this plugin.
 ```
 sudo apt install v4l-utils libv4l-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 ```
-Meson > 0.49 is required, you can download the good version on the official debian repositories :
+Meson >= 0.49 is required, you can download the good version on the official debian repositories :
 https://packages.debian.org/buster/all/meson/download.
 
 Once you have download your package, you can install it with the command : 
