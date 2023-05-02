@@ -1,10 +1,10 @@
 project('whitebalance', 'c',
-  version : '1.14.2',
+  version : '1.0.0',
   meson_version : '>= 0.49',
   default_options : [ 'warning_level=1',
                       'buildtype=debugoptimized' ])
 
-gst_version = meson.project_version()
+gst_version = '1.14.2'
 version_arr = gst_version.split('.')
 gst_version_major = version_arr[0].to_int()
 gst_version_minor = version_arr[1].to_int()
@@ -236,10 +236,10 @@ gstwhitebalance = library('gstwhitebalance',
   install_dir : plugins_install_dir,
 )
 conf_data = configuration_data()
-conf_data.set('package_version', '2.0.0')
-conf_data.set('package_name', 'multifocus')
-conf_data.set('package_string', 'multifocus 2.0.0')
-conf_data.set('tar_name', 'multifocus')
+conf_data.set('package_version', '1.0.0')
+conf_data.set('package_name', 'whitebalance')
+conf_data.set('package_string', 'whitebalance 1.0.0')
+conf_data.set('tar_name', 'whitebalance')
 configure_file(input : 'config.h.in',
                output : 'config.h',
                configuration : conf_data)
