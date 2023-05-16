@@ -231,13 +231,14 @@ gstwhitebalance = library('gstwhitebalance',
   install : true,
   install_dir : plugins_install_dir,
 )
+
 conf_data = configuration_data()
-conf_data.set('package_version', '1.0.0')
-conf_data.set('package_name', 'whitebalance')
-conf_data.set('package_string', 'whitebalance 1.0.0')
-conf_data.set('tar_name', 'whitebalance')
+conf_data.set('package_version', meson.project_version())
+conf_data.set('package_name', meson.project_name())
+conf_data.set('package', meson.project_name())
+conf_data.set('package_string', meson.project_name() + meson.project_version())
+conf_data.set('tar_name', meson.project_name())
 configure_file(input : 'config.h.in',
                output : 'config.h',
                configuration : conf_data)
-
 
