@@ -66,7 +66,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include "gstwhitebalance.h"
-
+#include <stdbool.h>
 void copy(const char* src,char *dest);
 
 GST_DEBUG_CATEGORY_STATIC(gst_whitebalance_debug);
@@ -84,7 +84,12 @@ enum
     PROP_0,
     PROP_BLUE,
     PROP_RED,
-    PROP_GREEN
+    PROP_GREEN,
+    PROP_ROI1X,
+    PROP_ROI1Y,
+    PROP_ROI2X,
+    PROP_ROI2Y,
+    PROP_AUTOWHITEBALANCE
 };
 
 gboolean isFrozen = FALSE;
@@ -116,7 +121,7 @@ static GstFlowReturn gst_whitebalance_chain(GstPad *pad,
 
 static void gst_whitebalance_finalize(GObject *object);
 
-
+void Auto_White_Balance(guint8* frame,int roi1x,int roi1y, int roi2x, int roi2y, int* red, int *green, int* blue);
 
 /* GObject vmethod implementations */
 
@@ -136,19 +141,32 @@ gst_whitebalance_class_init(GstwhitebalanceClass *klass)
 
 
     g_object_class_install_property(gobject_class, PROP_BLUE,
-                                    g_param_spec_string("blue", "Blue",
+                                    g_param_spec_int("blue", "Blue",
                                                      "Control the value of blue gain (should be a string of 9 characters as the default value)",
-                                                     "0x01 0xFE", G_PARAM_READWRITE));
+                                                     0, 4096, 510, G_PARAM_READWRITE));
+    g_object_class_install_property(gobject_class, PROP_AUTOWHITEBALANCE,
+                                    g_param_spec_boolean("autowhitebalance", "Autowhitebalance",
+                                                     "Do an auto white balance",
+                                                     false, G_PARAM_READWRITE));
 
     g_object_class_install_property(gobject_class, PROP_RED,
-                                    g_param_spec_string("red", "Red",
+                                    g_param_spec_int("red", "Red",
                                                      "Control the value of red gain (should be a string of 9 characters as the default value)",
-                                                     "0x02 0x36", G_PARAM_READWRITE));
+                                                     0, 4096, 566, G_PARAM_READWRITE));
 
     g_object_class_install_property(gobject_class, PROP_GREEN,
-                                    g_param_spec_string("green", "Green",
+                                    g_param_spec_int("green", "Green",
                                                      "Control the value of green gain (should be a string of 9 characters as the default value)",
-                                                     "0x01 0x00", G_PARAM_READWRITE));
+                                                      0, 4096, 256, G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class, PROP_ROI1X,
+                                  g_param_spec_int("roi1x", "Roi1x", "Roi coordinates", 0, 1920, 0, G_PARAM_READWRITE));
+  g_object_class_install_property(gobject_class, PROP_ROI1Y,
+                                  g_param_spec_int("roi1y", "Roi1y", "Roi coordinates", 0, 1080, 0, G_PARAM_READWRITE));
+  g_object_class_install_property(gobject_class, PROP_ROI2X,
+                                  g_param_spec_int("roi2x", "Roi2x", "Roi coordinates", 0, 1920, 1920, G_PARAM_READWRITE));
+  g_object_class_install_property(gobject_class, PROP_ROI2Y,
+                                  g_param_spec_int("roi2y", "Roi2y", "Roi coordinates", 0, 1080, 1080, G_PARAM_READWRITE));
 
     gst_element_class_set_details_simple(gstelement_class,
                                          "whitebalance",
@@ -181,13 +199,20 @@ gst_whitebalance_init(Gstwhitebalance *whitebalance)
     gst_element_add_pad(GST_ELEMENT(whitebalance), whitebalance->srcpad);
     whitebalance->frame = NULL;
 	
+    whitebalance->autowhitebalance = false;
+    whitebalance->blue = 510;
+    whitebalance->red = 566;
+    whitebalance->green = 256;
+    //whitebalance->blue = 256;
+    //whitebalance->red = 256;
 
-    whitebalance->blue = (char *) malloc(sizeof(char)*11);
-    strncpy(whitebalance->blue,"0x01 0xFE",10);
-    whitebalance->red = (char *) malloc(sizeof(char)*11);
-    strncpy(whitebalance->red,"0x02 0x36",10);
-    whitebalance->green = (char *) malloc(sizeof(char)*11);
-    strncpy(whitebalance->green,"0x01 0x00",10);
+  whitebalance->ROI1x = 0;
+  whitebalance->ROI1y = 0;
+  whitebalance->ROI2x = 1920;
+  whitebalance->ROI2y = 1080;
+
+
+
 
 }
 
@@ -195,12 +220,14 @@ gst_whitebalance_init(Gstwhitebalance *whitebalance)
 void copy(const char* src,char *dest)
 {
 	int i = 0;
+
 	while(src[i])
 	{
 		dest[i]=src[i];
-		i++;
+		i++;    
 	}
 	dest[i]='\0';
+	
 }
 
 static void
@@ -212,17 +239,29 @@ gst_whitebalance_set_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_BLUE:
-        strncpy(whitebalance->blue,g_value_get_string(value),10);
-	apply_changes_blue=1;
+        whitebalance->blue = g_value_get_int(value);
 	break;
     case PROP_RED:
-        strncpy(whitebalance->red,g_value_get_string(value),10);
-	apply_changes_red=1;
+        whitebalance->red = g_value_get_int(value);
 	break;
     case PROP_GREEN:
-        strncpy(whitebalance->green,g_value_get_string(value),10);
-	apply_changes_green=1;
+        whitebalance->green = g_value_get_int(value);
 	break;
+  case PROP_ROI1X:
+    whitebalance->ROI1x = g_value_get_int(value);
+    break;
+  case PROP_ROI1Y:
+    whitebalance->ROI1y = g_value_get_int(value);
+    break;
+  case PROP_ROI2X:
+    whitebalance->ROI2x = g_value_get_int(value);
+    break;
+  case PROP_AUTOWHITEBALANCE:
+    whitebalance->autowhitebalance = g_value_get_boolean(value);
+    break;
+  case PROP_ROI2Y:
+    whitebalance->ROI2y = g_value_get_int(value);
+    break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
         break;
@@ -238,13 +277,28 @@ gst_whitebalance_get_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_BLUE:
-        g_value_set_string(value, whitebalance->blue);
+        g_value_set_int(value, whitebalance->blue);
         break;
+  case PROP_ROI1X:
+    g_value_set_int(value, whitebalance->ROI1x);
+    break;
+  case PROP_ROI1Y:
+    g_value_set_int(value, whitebalance->ROI1y);
+    break;
+  case PROP_ROI2X:
+    g_value_set_int(value, whitebalance->ROI2x);
+    break;
+  case PROP_ROI2Y:
+    g_value_set_int(value, whitebalance->ROI2y);
+    break;
+  case PROP_AUTOWHITEBALANCE:
+    g_value_set_boolean(value, whitebalance->autowhitebalance);
+    break;
     case PROP_RED:
-        g_value_set_string(value, whitebalance->red);
+        g_value_set_int(value, whitebalance->red);
         break;
     case PROP_GREEN:
-        g_value_set_string(value, whitebalance->green);
+        g_value_set_int(value, whitebalance->green);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
@@ -255,58 +309,122 @@ gst_whitebalance_get_property(GObject *object, guint prop_id,
 /* chain function
  * this function does the actual processing
  */
+
+
+void Auto_White_Balance(guint8* frame,int roi1x,int roi1y, int roi2x, int roi2y, int* red, int *green, int* blue)
+{
+		long int green_sum=0;
+	long int blue_sum=0;
+	long int red_sum=0;
+
+        roi1x-=roi1x%2;
+	roi1y-=roi1y%2;
+	roi2x+=roi2x%2;
+	roi2y+=roi2y%2;
+	
+	for(int x = roi1x; x < roi2x; x+=2)
+	{
+		for(int y = roi1y; y < roi2y; y+=2)
+		{
+			if(frame[x+1+y*1920] != 0 || frame[x+1+y*1920] != 255) // to avoid the saturated pixels
+			{
+				red_sum += frame[x+y*1920];
+				green_sum += frame[x+1+y*1920];
+				green_sum += frame[x+(y+1)*1920];
+				blue_sum += frame[x+1+(y+1)*1920];
+			}
+		}	
+	}
+	green_sum=green_sum/2; // there is two the green pixels for one blue and one red
+	*blue =(int) (((green_sum / ((float)blue_sum)) * ((*blue / ((float) (*green)))))*256);
+	*red =(int) (((green_sum / ((float)red_sum)) * ((*red / ((float) (*green)))))*256);
+	g_print("red : %d\n", *red);
+	g_print("blue : %d\n", *blue);
+}
+
+
 static GstFlowReturn
 gst_whitebalance_chain(GstPad *pad, GstObject *parent, GstBuffer *buf)
 {
+
+    GstMapInfo map;
     Gstwhitebalance *whitebalance = GST_WHITEBALANCE(parent);
-    if(apply_changes_blue==1)
+
+    if(proc_once==0)
     {
-    char cmd[100]="i2ctransfer -f -y 6 w3@0x10 0x1E ";
-    strcat(cmd,whitebalance->blue);
-    if(system(cmd)==-1)	
-    {
-	    printf("system call failed\n");
-    }
     if(system("i2ctransfer -f -y 6 w3@0x10 0x04 0xa2 0xd0")==-1)
     {
 	  printf("system call failed\n");
+    }
+	proc_once=1;
+    }
+    gst_buffer_map(buf, &map, GST_MAP_READ);
+    
+    if(previous_blue != whitebalance->blue && !whitebalance->autowhitebalance)
+    {
+	char cmd[100];
+	if(sprintf(cmd,"i2ctransfer -f -y 6 w3@0x10 0x1E 0x%02x 0x%02x",(int) whitebalance->blue/ 256, whitebalance->blue % 256)==-1)
+	{	
+		g_print("failed to copy cmd\n");
+	}
+	else
+	{
+		printf("%s",cmd);
+		if(system(cmd)==-1)	
+	    	{
+		    	g_print("system call failed\n");
+	    	}
+	}
+
+    
+    	previous_blue=whitebalance->blue;
+    }
+
+    if(previous_red != whitebalance->red && !whitebalance->autowhitebalance)
+    {
+	char cmd[100];
+     	if(sprintf(cmd,"i2ctransfer -f -y 6 w3@0x10 0x20 0x%02x 0x%02x", (int) whitebalance->red/ 256, whitebalance->red % 256)==-1)
+	{
+		g_print("failed to copy cmd\n");
+	}
+	else
+	{
+		if(system(cmd)==-1)	
+    		{
+	    		g_print("system call failed\n");
+    		}
+	}
+	previous_red=whitebalance->red;
+    }
+
+    if(previous_green != whitebalance->green && !whitebalance->autowhitebalance)
+    {
+	char cmd[100];
+        if(sprintf(cmd,"i2ctransfer -f -y 6 w3@0x10 0x1F 0x%02x 0x%02x", (int) whitebalance->green/ 256, whitebalance->green % 256)==-1)
+	{
+		g_print("failed to copy cmd\n");
+	}
+	else
+	{
+		if(system(cmd)==-1)	
+    		{
+	    		g_print("system call failed\n");
+    		}
+	}
+	previous_green=whitebalance->green;
+    }
+
+    if(whitebalance->autowhitebalance && frame > 10)
+    {
+	Auto_White_Balance(map.data, whitebalance->ROI1x, whitebalance->ROI1y, whitebalance->ROI2x, whitebalance->ROI2y,&(previous_red),&(previous_green),&(previous_blue));
+	whitebalance->red = previous_red;
+	whitebalance->blue = previous_blue;
+	previous_red = 256;
+	previous_blue = 256;
+	whitebalance->autowhitebalance=false;
     }
     
-    apply_changes_blue=0;
-    }
-
-    if(apply_changes_red==1)
-    {
-    char cmd[100]="i2ctransfer -f -y 6 w3@0x10 0x20 ";
-    strcat(cmd,whitebalance->red);
-    if(system(cmd)==-1)	
-    {
-	    printf("system call failed\n");
-    }
-    if(system("i2ctransfer -f -y 6 w3@0x10 0x04 0xa2 0xd0")==-1)
-    {
-	  printf("system call failed\n");
-    }
-    apply_changes_red=0;
-    }
-
-    if(apply_changes_green==1)
-    {
-        char cmd[100]="i2ctransfer -f -y 6 w3@0x10 0x1F ";
-    strcat(cmd,whitebalance->green);
-    if(system(cmd)==-1)	
-    {
-	    printf("system call failed\n");
-    }
-    if(system("i2ctransfer -f -y 6 w3@0x10 0x04 0xa2 0xd0")==-1)
-    {
-	  printf("system call failed\n");
-    }
-    apply_changes_green=0;
-    }
-
-
-
+    frame ++;
     /* just push out the incoming buffer without touching it */
     return gst_pad_push(whitebalance->srcpad, buf);
 }
