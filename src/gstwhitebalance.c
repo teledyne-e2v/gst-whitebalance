@@ -414,7 +414,7 @@ gst_whitebalance_chain(GstPad *pad, GstObject *parent, GstBuffer *buf)
 	previous_green=whitebalance->green;
     }
 
-    if(whitebalance->autowhitebalance && frame > 10)
+    if(whitebalance->autowhitebalance)
     {
 	Auto_White_Balance(map.data, whitebalance->ROI1x, whitebalance->ROI1y, whitebalance->ROI2x, whitebalance->ROI2y,&(previous_red),&(previous_green),&(previous_blue));
 	whitebalance->red = previous_red;
