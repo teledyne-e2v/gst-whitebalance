@@ -426,6 +426,7 @@ gst_whitebalance_chain(GstPad *pad, GstObject *parent, GstBuffer *buf)
     
     frame ++;
     /* just push out the incoming buffer without touching it */
+    gst_buffer_unmap(buf,&map);
     return gst_pad_push(whitebalance->srcpad, buf);
 }
 
