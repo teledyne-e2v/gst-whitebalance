@@ -65,7 +65,6 @@ G_BEGIN_DECLS
 typedef struct _Gstwhitebalance Gstwhitebalance;
 typedef struct _GstwhitebalanceClass GstwhitebalanceClass;
 
-
 int previous_blue = 256;
 int previous_red = 256;
 int previous_green = 256;
@@ -76,16 +75,16 @@ struct _Gstwhitebalance
     GstElement element;
 
     GstPad *sinkpad, *srcpad;
-	
+
     gboolean autowhitebalance;
     gint blue;
     gint red;
     gint green;
     guint8 *frame;
-  gint ROI1x;
-  gint ROI1y;
-  gint ROI2x;
-  gint ROI2y;
+    gint ROI1x;
+    gint ROI1y;
+    gint ROI2x;
+    gint ROI2y;
     gsize frameSize;
 };
 

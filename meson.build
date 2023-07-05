@@ -78,22 +78,13 @@ endif
 cdata = configuration_data()
 
 check_headers = [
-  ['HAVE_DLFCN_H', 'dlfcn.h'],
   ['HAVE_FCNTL_H', 'fcntl.h'],
-  ['HAVE_INTTYPES_H', 'inttypes.h'],
-  ['HAVE_MEMORY_H', 'memory.h'],
-  ['HAVE_PROCESS_H', 'process.h'],
-  ['HAVE_STDINT_H', 'stdint.h'],
   ['HAVE_STDLIB_H', 'stdlib.h'],
-  ['HAVE_STRINGS_H', 'strings.h'],
-  ['HAVE_STRING_H', 'string.h'],
+  ['HAVE_STDBOOL_H', 'stdbool.h'],
+  ['HAVE_UNISTD_H', 'unistd.h'],
   ['HAVE_SYS_IOCTL_H', 'sys/ioctl.h'],
   ['HAVE_SYS_PARAM_H', 'sys/param.h'],
-  ['HAVE_SYS_SOCKET_H', 'sys/socket.h'],
-  ['HAVE_SYS_STAT_H', 'sys/stat.h'],
-  ['HAVE_SYS_TIME_H', 'sys/time.h'],
   ['HAVE_SYS_TYPES_H', 'sys/types.h'],
-  ['HAVE_UNISTD_H', 'unistd.h'],
 ]
 
 foreach h : check_headers
@@ -103,38 +94,8 @@ foreach h : check_headers
 endforeach
 
 check_functions = [
-  ['HAVE_CLOCK_GETTIME', 'clock_gettime', '#include<time.h>'],
-# check token HAVE_CPU_ALPHA
-# check token HAVE_CPU_ARM
-# check token HAVE_CPU_CRIS
-# check token HAVE_CPU_CRISV32
-# check token HAVE_CPU_HPPA
-# check token HAVE_CPU_I386
-# check token HAVE_CPU_IA64
-# check token HAVE_CPU_M68K
-# check token HAVE_CPU_MIPS
-# check token HAVE_CPU_PPC
-# check token HAVE_CPU_PPC64
-# check token HAVE_CPU_S390
-# check token HAVE_CPU_SPARC
-# check token HAVE_CPU_X86_64
-  ['HAVE_DCGETTEXT', 'dcgettext', '#include<libintl.h>'],
-# check token HAVE_DIRECTSOUND
-# check token HAVE_EXPERIMENTAL
-# check token HAVE_EXTERNAL
-# check token HAVE_FPCLASS
-# check token HAVE_GCC_ASM
   ['HAVE_GETPAGESIZE', 'getpagesize', '#include<unistd.h>'],
-# check token HAVE_GETTEXT
-# check token HAVE_GST_V4L2
-# check token HAVE_LIBV4L2
   ['HAVE_MMAP', 'mmap', '#include<sys/mman.h>'],
-  ['HAVE_MMAP64', 'mmap64', '#include<sys/mman.h>'],
-# check token HAVE_OSX_AUDIO
-# check token HAVE_OSX_VIDEO
-# check token HAVE_RDTSC
-# check token HAVE_WAVEFORM
-  ['HAVE_GMTIME_R', 'gmtime_r', '#include<time.h>'],
 ]
 
 libm = cc.find_library('m', required : false)
@@ -146,7 +107,6 @@ foreach f : check_functions
 endforeach
 
 cdata.set('HAVE_IOS', host_system == 'ios')
-
 cdata.set('SIZEOF_CHAR', cc.sizeof('char'))
 cdata.set('SIZEOF_INT', cc.sizeof('int'))
 cdata.set('SIZEOF_LONG', cc.sizeof('long'))
