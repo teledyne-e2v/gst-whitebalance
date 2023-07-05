@@ -105,7 +105,7 @@ export GST_PLUGIN_PATH=/usr/local/lib/gstreamer-1.0/
 ```
 The plugin can be used in any gstreamer pipeline by adding ```whitebalance```, the name of the plugin.
 
-## Pipeline examples:
+## Pipeline examples (Only if you have installed the optional debayer process):
 
 ### With debayer:
 ```
