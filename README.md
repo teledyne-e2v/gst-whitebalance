@@ -13,7 +13,6 @@ The following libraries are required for this plugin:
 - libv4l-dev
 - libgstreamer1.0-dev
 - libgstreamer-plugins-base1.0-dev
-- gstreamer1.0-plugins-bad (for the bayer2rgb plugin)
 - gcc
 - meson 
 - ninja
@@ -21,7 +20,7 @@ The following libraries are required for this plugin:
 ### Debian based system (Jetson): 
 
 ```
-sudo apt install v4l-utils libv4l-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev meson gstreamer1.0-plugins-bad
+sudo apt install v4l-utils libv4l-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev meson 
 ```
 
 ### Yocto based system (IMX): 
@@ -30,6 +29,31 @@ Teledyne provide a bbappend file which provides all packages needed :
 https://github.com/teledyne-e2v/Yocto-files
 
 ##### Note : You can also compile them on your installed distribution but it will take a long time to compile (Do it only if you miss one or two packages)
+
+## Optional (All the debayer process)
+
+- gstreamer1.0-plugins-bad (for the bayer2rgb plugin)
+- gst-gray2bayer 
+
+To install gst-gray2bayer, take a look at this git : https://github.com/teledyne-e2v/gst-bayer2rgb
+
+### Debian based system (Jetson): 
+
+```
+sudo apt install gstreamer1.0-plugins-bad
+
+```
+
+
+### Yocto based system (IMX): 
+
+Teledyne provide a bbappend file which provides all packages needed :
+https://github.com/teledyne-e2v/Yocto-files
+
+##### Note : You can also compile them on your installed distribution but it will take a long time to compile (Do it only if you miss one or two packages)
+
+
+
 
 # Compilation
 
